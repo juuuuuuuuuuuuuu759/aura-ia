@@ -1,0 +1,1155 @@
+!DOCTYPE html
+html lang=fr
+head
+    meta charset=UTF-8
+    meta name=viewport content=width=device-width, initial-scale=1.0
+    titleAura V12  L'Horizon Infinititle
+    link href=httpsfonts.googleapis.comcss2family=Interwght@300;400;500;600;700&family=Montserratwght@700;800&display=swap rel=stylesheet
+    style
+        root {
+            --bg-gradient-start #1a2a4a;  Bleu nuit très profond 
+            --bg-gradient-end #0c152a;    Encore plus foncé 
+            --chat-bg #111a30;            Bleu très foncé pour le corps du chat 
+            --chat-border #3f5a8a;        Bleu subtil pour les bordures 
+            --user-msg-bg #4CAF50;        Vert vibrant 
+            --bot-msg-bg #007bff;         Bleu vif, presque indigo 
+            --thinking-msg-bg #6c757d;    Gris neutre 
+            --input-bg #e8f0fe;           Bleu pâle pour l'input 
+            --input-text-color #333;
+            --button-bg #FF9800;          Orange vif 
+            --button-hover-bg #FB8C00;    Orange plus foncé 
+            --accent-color #00BCD4;       Cyan pour les titres et accents 
+            --text-color-light #e0e0e0;
+            --text-color-dark #a0a0a0;
+            --shadow-light rgba(0, 0, 0, 0.2);
+            --shadow-medium rgba(0, 0, 0, 0.4);
+            --shadow-heavy rgba(0, 0, 0, 0.6);
+        }
+
+        body {
+            font-family 'Inter', sans-serif;
+            background linear-gradient(145deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            color var(--text-color-light);
+            margin 0;
+            display flex;
+            justify-content center;
+            align-items center;
+            min-height 100vh;
+            font-size 1.05em;
+            overflow hidden;
+            position relative;
+            animation backgroundShift 40s ease infinite alternate;
+        }
+
+        @keyframes backgroundShift {
+            0% { background-position 0% 50%; }
+            100% { background-position 100% 50%; }
+        }
+
+        #chatbot-container {
+            background-color var(--chat-bg);
+            border 1px solid var(--chat-border);
+            border-radius 20px;
+            box-shadow 0 20px 60px var(--shadow-heavy);
+            padding 30px;
+            max-width 800px;
+            width 95%;
+            display flex;
+            flex-direction column;
+            align-items center;
+            position relative;
+            z-index 10;
+            animation fadeInScale 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            transition all 0.4s ease-in-out;
+            min-height 650px;  Minimum height for better appearance 
+        }
+
+        @keyframes fadeInScale {
+            from { opacity 0; transform translateY(30px) scale(0.95); }
+            to { opacity 1; transform translateY(0) scale(1); }
+        }
+
+        h1 {
+            font-family 'Montserrat', sans-serif;
+            color var(--accent-color);
+            text-shadow 2px 2px 10px var(--shadow-medium);
+            margin-bottom 10px;
+            font-size 3em;
+            text-align center;
+            letter-spacing 1.5px;
+            font-weight 800;
+        }
+
+        #subtitle {
+            font-family 'Inter', sans-serif;
+            color var(--text-color-dark);
+            font-size 1.2em;
+            margin-top 0px;
+            margin-bottom 25px;
+            text-align center;
+            width 100%;
+            line-height 1.6;
+        }
+
+        #chat-window {
+            width 100%;
+            height 500px;
+            background-color #152038;  Slightly darker than chat-bg 
+            border 1px solid #2a3a5c;  Complementary border 
+            border-radius 15px;
+            padding 20px;
+            overflow-y auto;
+            margin-bottom 20px;
+            display flex;
+            flex-direction column;
+            gap 10px;
+            box-shadow inset 0 2px 8px var(--shadow-light);
+            scroll-behavior smooth;
+        }
+
+         Scrollbar styles 
+        #chat-window-webkit-scrollbar {
+            width 8px;
+        }
+        #chat-window-webkit-scrollbar-track {
+            background #152038;
+            border-radius 10px;
+        }
+        #chat-window-webkit-scrollbar-thumb {
+            background-color var(--chat-border);
+            border-radius 10px;
+            border 2px solid #152038;
+        }
+
+        .message {
+            max-width 90%;
+            padding 12px 18px;
+            border-radius 20px;
+            word-wrap break-word;
+            line-height 1.55;
+            animation messageAppear 0.4s ease-out forwards;
+            font-size 0.98em;
+            box-shadow 0 2px 6px var(--shadow-light);
+            position relative;
+            transition all 0.2s ease;
+        }
+
+        @keyframes messageAppear {
+            from { opacity 0; transform translateY(15px); }
+            to { opacity 1; transform translateY(0); }
+        }
+
+        .user-message {
+            background-color var(--user-msg-bg);
+            align-self flex-end;
+            color white;
+            border-bottom-right-radius 6px;
+        }
+
+        .bot-message {
+            background-color var(--bot-msg-bg);
+            align-self flex-start;
+            color white;
+            border-bottom-left-radius 6px;
+        }
+
+        .bot-message-thinking {
+            background-color var(--thinking-msg-bg);
+            align-self flex-start;
+            color white;
+            border-bottom-left-radius 6px;
+            font-style italic;
+            opacity 0.7;
+            animation pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity 0.7; }
+            50% { opacity 0.5; }
+            100% { opacity 0.7; }
+        }
+
+        #input-container {
+            display flex;
+            width 100%;
+            gap 10px;
+        }
+
+        #user-input {
+            flex-grow 1;
+            padding 14px 18px;
+            border 1px solid var(--chat-border);
+            border-radius 10px;
+            background-color var(--input-bg);
+            color var(--input-text-color);
+            font-size 1.05em;
+            outline none;
+            transition border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #user-inputfocus {
+            border-color var(--bot-msg-bg);
+            box-shadow 0 0 12px rgba(0, 123, 255, 0.5);
+        }
+
+        #send-btn {
+            background-color var(--button-bg);
+            color white;
+            padding 14px 25px;
+            border none;
+            border-radius 10px;
+            cursor pointer;
+            font-size 1.05em;
+            font-weight 600;
+            transition background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            box-shadow 0 4px 12px var(--shadow-medium);
+        }
+
+        #send-btnhover {
+            background-color var(--button-hover-bg);
+            transform translateY(-2px);
+            box-shadow 0 6px 18px var(--shadow-heavy);
+        }
+        #send-btnactive {
+            transform translateY(0);
+            box-shadow 0 3px 10px var(--shadow-light);
+        }
+
+         Game and Module Specific Styles 
+        .game-module {
+            background-color #1a2a4a;  Couleur du conteneur principal 
+            border 1px solid var(--chat-border);
+            border-radius 18px;
+            padding 25px;
+            margin-top 25px;
+            text-align center;
+            display none;  Hidden by default 
+            width 100%;
+            box-shadow 0 8px 25px var(--shadow-medium);
+            animation fadeIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity 0; transform translateY(20px); }
+            to { opacity 1; transform translateY(0); }
+        }
+
+        .game-module h2 {
+            font-family 'Montserrat', sans-serif;
+            color var(--accent-color);
+            font-size 2.2em;
+            margin-bottom 20px;
+            text-shadow 1px 1px 6px var(--shadow-light);
+            font-weight 700;
+        }
+        .game-module p {
+            color var(--text-color-light);
+            margin-bottom 15px;
+            line-height 1.6;
+        }
+
+        .game-input {
+            width 80px;
+            padding 12px;
+            border-radius 10px;
+            border 1px solid var(--accent-color);
+            text-align center;
+            font-size 1.6em;
+            text-transform uppercase;
+            background-color var(--input-bg);
+            color var(--input-text-color);
+            outline none;
+            transition border-color 0.3s ease, box-shadow 0.3s ease;
+            box-sizing border-box;
+            margin-right 10px;
+        }
+        .game-input-large {  For dream analyzer or multi-word inputs 
+            width 90%;
+            height 120px;
+            text-transform none;
+            font-size 1.1em;
+            padding 15px;
+            resize vertical;
+            margin-bottom 15px;
+        }
+        .game-inputfocus, .game-input-largefocus {
+            border-color var(--bot-msg-bg);
+            box-shadow 0 0 10px rgba(0, 123, 255, 0.6);
+        }
+
+        .game-button {
+            background-color var(--button-bg);
+            color white;
+            padding 12px 25px;
+            border none;
+            border-radius 10px;
+            cursor pointer;
+            font-size 1.05em;
+            font-weight 600;
+            transition background-color 0.2s ease, transform 0.1s ease;
+            box-shadow 0 3px 10px var(--shadow-light);
+            margin 5px;  Added margin for better spacing 
+        }
+        .game-buttonhover {
+            background-color var(--button-hover-bg);
+            transform translateY(-2px);
+        }
+        .game-buttonactive {
+            transform translateY(0);
+        }
+
+         Specific gamemodule elements 
+        #word-display, #quiz-question, #hangman-word-display {
+            font-family 'Montserrat', sans-serif;
+            font-size 3em;
+            letter-spacing 5px;
+            margin-bottom 25px;
+            color var(--accent-color);
+            font-weight 700;
+            text-shadow 2px 2px 8px var(--shadow-medium);
+        }
+        #guesses-left, #quiz-score, #quiz-result, #dream-result, #weather-display {
+            margin-bottom 15px;
+            color var(--text-color-light);
+            font-size 1.1em;
+        }
+        #guessed-letters {
+            color var(--text-color-dark);
+            margin-bottom 20px;
+            font-style italic;
+        }
+
+        #quiz-options {
+            list-style none;
+            padding 0;
+            margin 20px 0;
+            display flex;
+            flex-direction column;
+            gap 12px;
+        }
+        #quiz-options button {
+            background-color #3f5a8a;  Bleu gris 
+            color white;
+            padding 14px 22px;
+            border none;
+            border-radius 10px;
+            cursor pointer;
+            font-size 1.08em;
+            transition background-color 0.2s ease, transform 0.1s ease;
+            width 100%;
+            text-align left;
+            box-shadow 0 2px 8px var(--shadow-light);
+        }
+        #quiz-options buttonhover {
+            background-color #4a6fa8;  Bleu gris plus clair 
+            transform translateY(-2px);
+        }
+        #quiz-options buttonactive {
+            transform translateY(0);
+        }
+
+         Responsive adjustments 
+        @media (max-width 768px) {
+            #chatbot-container {
+                padding 20px;
+                width 95%;
+                min-height 90vh;
+                margin 20px 0;
+            }
+            h1 {
+                font-size 2.2em;
+            }
+            #subtitle {
+                font-size 1em;
+            }
+            #chat-window {
+                height 400px;
+                padding 15px;
+            }
+            .message {
+                padding 10px 15px;
+                font-size 0.9em;
+            }
+            #user-input {
+                padding 12px 15px;
+                font-size 1em;
+            }
+            #send-btn {
+                padding 12px 20px;
+                font-size 1em;
+            }
+            .game-module {
+                padding 20px;
+            }
+            .game-module h2 {
+                font-size 1.8em;
+            }
+            #word-display, #quiz-question {
+                font-size 2.2em;
+            }
+            .game-input {
+                font-size 1.4em;
+                width 60px;
+            }
+            .game-button {
+                padding 10px 20px;
+                font-size 0.95em;
+            }
+        }
+        @media (max-width 480px) {
+            h1 {
+                font-size 1.8em;
+            }
+            #subtitle {
+                font-size 0.9em;
+            }
+            #chat-window {
+                height 350px;
+            }
+            #input-container {
+                flex-direction column;
+                gap 8px;
+            }
+            #user-input, #send-btn {
+                width 100%;
+            }
+        }
+
+         Helper for showinghiding modules 
+        .hidden {
+            display none !important;
+        }
+    style
+head
+body
+    div id=chatbot-container
+        h1Aura V12  L'Horizon Infinih1
+        p id=subtitleVotre assistante IA locale, optimisée pour une expérience riche et élégante.p
+
+        div id=chat-window
+            div
+
+        div id=input-container
+            input type=text id=user-input placeholder=Tapez votre message ici...
+            button id=send-btnEnvoyerbutton
+        div
+
+        div id=pendu-game class=game-module hidden
+            h2Le Pendu 🎩h2
+            p id=hangman-word-display_ _ _ _p
+            p id=guesses-leftTentatives restantes  6p
+            p id=guessed-lettersLettres déjà essayées p
+            input type=text id=pendu-input maxlength=1 placeholder=Lettre class=game-input
+            button class=game-button onclick=checkPenduLetter()Devinerbutton
+            button class=game-button onclick=startPenduGame()Nouveau motbutton
+        div
+
+        div id=quiz-game class=game-module hidden
+            h2Le Quiz de la Connaissance 🧠h2
+            p id=quiz-questionp
+            ul id=quiz-optionsul
+            p id=quiz-scoreScore  0  0p
+            p id=quiz-resultp
+            button class=game-button onclick=startQuiz()Lancer le Quizbutton
+            button class=game-button onclick=nextQuizQuestion() style=displaynone; id=next-quiz-btnQuestion Suivantebutton
+        div
+
+        div id=dream-analyzer class=game-module hidden
+            h2Analyse de Rêves Symbolique ✨h2
+            pDécrivez votre rêve ci-dessous, et je tenterai d'en analyser les symboles.p
+            textarea id=dream-text-input placeholder=Ex J'ai rêvé que je volais au-dessus d'une forêt... class=game-input-largetextarea
+            button class=game-button onclick=analyzeDream()Analyser le rêvebutton
+            p id=dream-result style=margin-top 20px; text-align left;p
+        div
+
+         div id=joke-module class=game-module hidden
+            h2Blagues et Humour 😂h2
+            p id=joke-displayp
+            button class=game-button onclick=tellJoke()Une autre blague !button
+        div
+
+         div id=fact-module class=game-module hidden
+            h2Faits Intéressants 💡h2
+            p id=fact-displayp
+            button class=game-button onclick=tellFact()Un autre fait !button
+        div
+
+        div id=rps-game class=game-module hidden
+            h2Pierre, Papier, Ciseaux ✊✋✌️h2
+            pFaites votre choix p
+            button class=game-button onclick=playRPS('pierre')Pierre ✊button
+            button class=game-button onclick=playRPS('papier')Papier ✋button
+            button class=game-button onclick=playRPS('ciseaux')Ciseaux ✌️button
+            p id=rps-result style=margin-top 20px;p
+        div
+
+        div id=number-guessing-game class=game-module hidden
+            h2Devine le Nombre 🔢h2
+            pJ'ai choisi un nombre entre 1 et 100. À vous de deviner !p
+            input type=number id=number-guess-input min=1 max=100 placeholder=Votre nombre class=game-input
+            button class=game-button onclick=checkNumberGuess()Devinerbutton
+            button class=game-button onclick=startNumberGuessingGame()Nouveau jeubutton
+            p id=number-guess-result style=margin-top 20px;p
+            p id=number-guess-attemptsp
+        div
+
+        div id=story-generator-module class=game-module hidden
+            h2Générateur d'Histoires Aléatoires 📚h2
+            p id=story-displayp
+            button class=game-button onclick=generateStory()Générer une histoirebutton
+        div
+
+         div id=fun-fact-module class=game-module hidden
+            h2Anecdotes Amusantes 🥳h2
+            p id=fun-fact-displayp
+            button class=game-button onclick=tellFunFact()Encore une !button
+        div
+
+    div
+
+    script
+        const chatWindow = document.getElementById('chat-window');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        let userName = null;  To store user's name
+
+         Module Elements
+        const penduGame = document.getElementById('pendu-game');
+        const penduWordDisplay = document.getElementById('hangman-word-display');
+        const penduGuessesLeft = document.getElementById('guesses-left');
+        const penduGuessedLetters = document.getElementById('guessed-letters');
+        const penduInput = document.getElementById('pendu-input');
+
+        const quizGame = document.getElementById('quiz-game');
+        const quizQuestionElem = document.getElementById('quiz-question');
+        const quizOptionsElem = document.getElementById('quiz-options');
+        const quizScoreElem = document.getElementById('quiz-score');
+        const quizResultElem = document.getElementById('quiz-result');
+        const nextQuizBtn = document.getElementById('next-quiz-btn');
+
+        const dreamAnalyzer = document.getElementById('dream-analyzer');
+        const dreamTextInput = document.getElementById('dream-text-input');
+        const dreamResultElem = document.getElementById('dream-result');
+
+        const jokeModule = document.getElementById('joke-module');
+        const jokeDisplay = document.getElementById('joke-display');
+
+        const factModule = document.getElementById('fact-module');
+        const factDisplay = document.getElementById('fact-display');
+
+        const rpsGame = document.getElementById('rps-game');
+        const rpsResult = document.getElementById('rps-result');
+
+        const numberGuessingGame = document.getElementById('number-guessing-game');
+        const numberGuessInput = document.getElementById('number-guess-input');
+        const numberGuessResult = document.getElementById('number-guess-result');
+        const numberGuessAttempts = document.getElementById('number-guess-attempts');
+
+        const storyGeneratorModule = document.getElementById('story-generator-module');
+        const storyDisplay = document.getElementById('story-display');
+
+        const funFactModule = document.getElementById('fun-fact-module');
+        const funFactDisplay = document.getElementById('fun-fact-display');
+
+        let currentActiveModule = null;  To keep track of which module is active
+        let lastUserMessage = '';  To remember the last message for context
+
+        function addMessage(text, sender, isHtml = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(sender === 'user'  'user-message'  'bot-message');
+            if (isHtml) {
+                messageDiv.innerHTML = text;
+            } else {
+                messageDiv.textContent = text;
+            }
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;  Scroll to bottom
+        }
+
+        function showThinkingMessage() {
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.classList.add('message', 'bot-message-thinking');
+            thinkingDiv.innerHTML = 'Aura réfléchit...';
+            chatWindow.appendChild(thinkingDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            return thinkingDiv;  Return the element so it can be removedupdated
+        }
+
+        function removeThinkingMessage(thinkingDiv) {
+            if (thinkingDiv && chatWindow.contains(thinkingDiv)) {
+                chatWindow.removeChild(thinkingDiv);
+            }
+        }
+
+        function hideAllModules() {
+            [penduGame, quizGame, dreamAnalyzer, jokeModule, factModule, rpsGame, numberGuessingGame, storyGeneratorModule, funFactModule].forEach(module = {
+                if (module) module.classList.add('hidden');
+            });
+            currentActiveModule = null;
+        }
+
+        async function processCommand(command) {
+            let response = Désolée, je n'ai pas compris votre demande. Pourriez-vous reformuler ou essayer une autre commande  N'oubliez pas, je fonctionne hors ligne !;
+            lastUserMessage = command;  Store the last user command for context
+            command = command.toLowerCase().trim();
+            hideAllModules();  Hide any active module before responding
+
+            let thinkingMessage = showThinkingMessage();
+
+             Simulate AI processing time
+            await new Promise(resolve = setTimeout(resolve, 800 + Math.random()  700));  0.8 to 1.5 seconds
+
+            removeThinkingMessage(thinkingMessage);
+
+            if (command.includes(bonjour)  command.includes(salut)  command.includes(hello)) {
+                if (!userName) {
+                    response = Bonjour ! Je suis Aura V12. Quel est votre prénom ;
+                     Set a flag or state to expect the name next
+                    sessionStorage.setItem('awaitingName', 'true');
+                } else {
+                    response = `Bonjour ${userName} ! Comment puis-je vous aider aujourd'hui `;
+                }
+            } else if (sessionStorage.getItem('awaitingName') === 'true') {
+                userName = command.split(' ')[0];  Take the first word as the name
+                sessionStorage.removeItem('awaitingName');
+                response = `Enchantée, ${userName} ! Je suis Aura V12, votre assistante IA locale. Que puis-je faire pour vous aujourd'hui `;
+            } else if (command.includes(comment ça va)) {
+                response = Je suis un programme, donc je n'ai pas d'émotions, mais je suis prête et opérationnelle pour vous aider ! Et vous ;
+            } else if (command.includes(merci)) {
+                response = De rien ! Je suis là pour ça.;
+            } else if (command.includes(qui es-tu)) {
+                response = Je suis Aura V12, votre assistante IA personnelle, conçue pour fonctionner localement dans votre navigateur. Je suis là pour vous informer, vous divertir et vous aider du mieux que je peux !;
+            } else if (command.includes(météo à )  command.includes(quel temps fait-il à )) {
+                const cityMatch = command.match(météo à (.+)quel temps fait-il à (.+));
+                const city = cityMatch  (cityMatch[1]  cityMatch[2])  null;
+                response = getWeatherForecast(city);
+            } else if (command.includes(calcule)  command.match((d+[+-%^]d+))) {
+                try {
+                    let expression = command.replace(calcule g, '').replace(calculez g, '').replace(combien font g, '');
+                    expression = expression.replace(xg, '').replace(÷g, '');  Handle common multiplicationdivision symbols
+                    expression = expression.replace(^g, '');  Handle power operator ^
+                    if (expression.includes('sqrt(')) {
+                        expression = expression.replace(sqrt((d+(.d+)))g, 'Math.sqrt($1)');
+                    }
+                    const result = eval(expression);
+                    response = `Le résultat de ${expression.replace(g, '^')} est  strong${result}strong.`;
+                } catch (e) {
+                    response = Désolée, je n'ai pas pu effectuer ce calcul. Veuillez vérifier la formule (ex calcule 5+32 ou calcule sqrt(25)).;
+                }
+            } else if (command.includes(raconte une blague)  command.includes(blague)  command.includes(dis une blague)) {
+                jokeModule.classList.remove('hidden');
+                currentActiveModule = 'joke';
+                tellJoke();
+                return;
+            } else if (command.includes(fait intéressant)  command.includes(fait divers)  command.includes(savais tu que)) {
+                factModule.classList.remove('hidden');
+                currentActiveModule = 'fact';
+                tellFact();
+                return;
+            } else if (command.includes(anecdote amusante)  command.includes(une anecdote)  command.includes(dis moi un truc marrant)) {
+                funFactModule.classList.remove('hidden');
+                currentActiveModule = 'funFact';
+                tellFunFact();
+                return;
+            } else if (command.includes(pendu)  command.includes(lance le pendu)) {
+                penduGame.classList.remove('hidden');
+                currentActiveModule = 'pendu';
+                startPenduGame();
+                response = Très bien ! Le jeu du Pendu est lancé. Devinez le mot !;
+            } else if (command.includes(quiz)  command.includes(lance le quiz)) {
+                quizGame.classList.remove('hidden');
+                currentActiveModule = 'quiz';
+                startQuiz();
+                response = Super ! Le Quiz de la Connaissance est prêt. Bonne chance !;
+            } else if (command.includes(rêve)  command.includes(analyse rêve)  command.includes(signification rêve)) {
+                dreamAnalyzer.classList.remove('hidden');
+                currentActiveModule = 'dream';
+                dreamResultElem.innerHTML = '';
+                dreamTextInput.value = '';
+                response = D'accord, racontez-moi votre rêve. Je ferai de mon mieux pour en analyser les symboles.;
+            } else if (command.includes(pierre papier ciseaux)  command.includes(jouons à rps)) {
+                rpsGame.classList.remove('hidden');
+                currentActiveModule = 'rps';
+                rpsResult.textContent = 'Faites votre choix !';
+                response = Jouons à Pierre, Papier, Ciseaux ! Faites votre choix ci-dessous.;
+            } else if (command.includes(devine le nombre)  command.includes(jeu du nombre)) {
+                numberGuessingGame.classList.remove('hidden');
+                currentActiveModule = 'numberGuessing';
+                startNumberGuessingGame();
+                response = J'ai pensé à un nombre entre 1 et 100. À vous de deviner !;
+            } else if (command.includes(génère une histoire)  command.includes(raconte une histoire aléatoire)) {
+                storyGeneratorModule.classList.remove('hidden');
+                currentActiveModule = 'storyGenerator';
+                generateStory();
+                response = Voici une histoire générée aléatoirement pour vous !;
+            } else if (command.includes(crée une image de)  command.includes(génère une image de)) {
+                response = Je peux vous aider à générer une image ! Cependant, en tant qu'IA locale, je ne peux pas créer d'images directement. Mais si vous me donnez la description de l'image dans notre conversation actuelle (avec Gemini), je la générerai pour vous. Que voulez-vous que l'image représente ;
+            }
+             Extensive Knowledge Base
+            else if (command.includes(capital) && command.includes(japon)) { response = La capitale du Japon est strongTokyostrong.; }
+            else if (command.includes(océan) && command.includes(plus grand)) { response = Le plus grand océan du monde est l'strongOcéan Pacifiquestrong.; }
+            else if (command.includes(joconde)  command.includes(mona lisa) && command.includes(peint)) { response = La Joconde (Mona Lisa) a été peinte par strongLéonard de Vincistrong.; }
+            else if (command.includes(formule) && command.includes(eau)) { response = La formule chimique de l'eau est strongH₂Ostrong.; }
+            else if (command.includes(pays du soleil levant)) { response = Le strongJaponstrong est connu sous le nom de 'Pays du Soleil-Levant'.; }
+            else if (command.includes(animal terrestre le plus rapide)) { response = L'animal terrestre le plus rapide est le strongGuépardstrong.; }
+            else if (command.includes(nombre de continents)) { response = Il y a strong7 continentsstrong sur Terre  l'Asie, l'Afrique, l'Amérique du Nord, l'Amérique du Sud, l'Antarctique, l'Europe et l'Australie (Océanie).; }
+            else if (command.includes(plus grand désert)) { response = Le plus grand désert du monde est le strongDésert de l'Antarctiquestrong.; }
+            else if (command.includes(principal composant de l'air)) { response = Le principal composant de l'air que nous respirons est l'strongAzotestrong (environ 78%).; }
+            else if (command.includes(adolphe sax)  command.includes(inventé le saxophone)) { response = Adolphe Sax a inventé le strongSaxophonestrong.; }
+            else if (command.includes(théorie de la relativité)) { response = La strongThéorie de la Relativitéstrong, développée par Albert Einstein, se compose de deux parties  la relativité restreinte (1905) qui concerne l'espace-temps et l'équivalence masse-énergie ($E=mc^2$), et la relativité générale (1915) qui décrit la gravité comme une courbure de l'espace-temps causée par la masse et l'énergie.; }
+            else if (command.includes(impressionnisme)) { response = L'strongimpressionnismestrong est un mouvement artistique apparu en France dans les années 1870. Il se caractérise par des coups de pinceau visibles, des compositions ouvertes, l'accent sur la lumière et ses changements, et des sujets de la vie moderne. Claude Monet, Pierre-Auguste Renoir et Edgar Degas en sont des figures emblématiques.; }
+            else if (command.includes(symphonie n°5)  command.includes(beethoven) && command.includes(symphonie)) { response = La strongSymphonie n°5 de Beethovenstrong, souvent surnommée la 'Symphonie du Destin', est l'une des œuvres les plus célèbres de la musique classique. Composée entre 1804 et 1808, elle est reconnaissable à son motif d'ouverture en quatre notes.; }
+            else if (command.includes(pyramides d'égypte)) { response = Les strongpyramides d'Égyptestrong sont d'anciennes structures de pierre en forme de pyramide situées en Égypte. Les plus célèbres sont celles de Gizeh, construites comme tombes pour les pharaons. La plus grande est la pyramide de Khéops.; }
+            else if (command.includes(grande muraille de chine)) { response = La strongGrande Muraille de Chinestrong est une série de fortifications construites pour protéger les frontières nord de la Chine contre les invasions. Sa construction a débuté dès le VIIe siècle av. J.-C. et s'est poursuivie pendant des siècles, en faisant l'une des plus grandes structures jamais construites par l'homme.; }
+            else if (command.includes(internet)  command.includes(qui a inventé internet)) { response = L'strongInternetstrong n'a pas été inventé par une seule personne, mais a évolué à partir de divers projets de recherche, notamment ARPANET aux États-Unis dans les années 1960. Tim Berners-Lee est souvent crédité de l'invention du World Wide Web (WWW) en 1989, qui a rendu Internet accessible au grand public.; }
+            else if (command.includes(intelligence artificielle)  command.includes(ia)) { response = L'strongIntelligence Artificielle (IA)strong est un domaine de l'informatique qui vise à créer des machines capables de simuler l'intelligence humaine. Cela inclut l'apprentissage, la résolution de problèmes, la perception et la compréhension du langage.; }
+            else if (command.includes(nutrition)  command.includes(manger sain)) { response = Pour une strongnutrition sainestrong, privilégiez une alimentation équilibrée riche en fruits, légumes, protéines maigres et grains entiers. Limitez les sucres ajoutés, les graisses saturées et le sodium. Une bonne hydratation est aussi essentielle.; }
+            else if (command.includes(stress)  command.includes(gérer le stress)) { response = Pour stronggérer le stressstrong, essayez des techniques de relaxation comme la méditation, la respiration profonde ou le yoga. L'exercice physique régulier, un sommeil suffisant et le maintien de liens sociaux forts sont également très bénéfiques.; }
+            else if (command.includes(apprendre une nouvelle langue)) { response = Pour strongapprendre une nouvelle languestrong, l'immersion est très efficace  écoutez de la musique, regardez des films, et pratiquez régulièrement avec des locuteurs natifs si possible. La régularité et la persévérance sont les clés !; }
+            else if (command.includes(productivité)  command.includes(être plus productif)) { response = Pour strongaméliorer votre productivitéstrong, essayez la méthode Pomodoro (travailler par intervalles de 25 minutes), fixez-vous des objectifs clairs, éliminez les distractions et apprenez à déléguer ou à dire non. Prioriser vos tâches est également crucial.; }
+            else if (command.includes(développement personnel)) { response = Le strongdéveloppement personnelstrong vise à améliorer la connaissance de soi, le potentiel humain, la qualité de vie et la réalisation de ses aspirations. Cela peut inclure l'apprentissage de nouvelles compétences, la gestion des émotions, ou l'établissement d'objectifs de vie.; }
+            else if (command.includes(livre à lire)  command.includes(recommander un livre)) { response = Si vous aimez la science-fiction, je vous recommande 'Dune' de Frank Herbert. Pour un classique littéraire, 'Cent ans de solitude' de Gabriel García Márquez est exceptionnel. Si vous cherchez de l'inspiration personnelle, 'L'Alchimiste' de Paulo Coelho est une lecture populaire.; }
+            else if (command.includes(film à voir)  command.includes(recommander un film)) { response = Pour un classique intemporel, 'Le Parrain' est un chef-d'œuvre. Si vous aimez la science-fiction qui fait réfléchir, 'Inception' est excellent. Pour une animation touchante, 'Vice-versa' est formidable.; }
+            else if (command.includes(recette facile)) { response = Voici une strongrecette facilestrong pour un 'One-Pan Pasta'  Faites cuire des pâtes crues directement dans une poêle avec des tomates cerises, de l'ail, du basilic, un bouillon et un peu d'huile d'olive. C'est délicieux et rapide !; }
+            else if (command.includes(blockchain)) { response = La strongblockchainstrong est une technologie de stockage et de transmission d'informations transparente, sécurisée, et fonctionnant sans organe central de contrôle. C'est une chaîne de blocs de données qui sont liés les uns aux autres de manière cryptographique. Elle est notamment utilisée pour les cryptomonnaies comme le Bitcoin.; }
+            else if (command.includes(quantum computing)  command.includes(informatique quantique)) { response = L'stronginformatique quantiquestrong est un nouveau type de calcul qui utilise les principes de la mécanique quantique (superposition, intrication) pour effectuer des calculs beaucoup plus complexes et plus rapidement que les ordinateurs classiques, ouvrant la voie à des avancées dans des domaines comme la médecine ou la cryptographie.; }
+            else if (command.includes(nanotechnologie)) { response = La strongnanotechnologiestrong est un domaine de la science et de l'ingénierie qui s'intéresse à la manipulation de la matière à l'échelle nanométrique (un nanomètre est un milliardième de mètre). Elle permet de créer de nouveaux matériaux et dispositifs avec des propriétés uniques, ayant des applications en médecine, en électronique, ou en énergie.; }
+            else if (command.includes(neurosciences)) { response = Les strongneurosciencesstrong sont l'étude scientifique du système nerveux. Ce domaine multidisciplinaire explore la structure, le fonctionnement, le développement, la génétique, la biochimie, la physiologie, la pharmacologie et la pathologie du système nerveux.; }
+            else if (command.includes(astrophysique)) { response = L'strongastrophysiquestrong est une branche de l'astronomie qui applique les principes de la physique pour comprendre les phénomènes de l'Univers, tels que la formation et l'évolution des étoiles, des galaxies, les trous noirs, et le Big Bang.; }
+            else if (command.includes(écologie)  command.includes(environnement)) { response = L'strongécologiestrong est la science qui étudie les relations entre les organismes vivants et leur environnement. Elle est essentielle pour comprendre et résoudre les problèmes environnementaux actuels comme le changement climatique ou la perte de biodiversité.; }
+            else if (command.includes(artificiel) && command.includes(créer)) { response = En tant qu'IA, je suis le fruit de la programmation et des données. Je peux générer du contenu basé sur des motifs que j'ai appris, mais je ne 'crée' pas au sens humain du terme, avec intention ou émotion. Mon rôle est de vous assister et de vous informer.; }
+            else if (command.includes(sens de la vie)) { response = Le strongsens de la viestrong est une question philosophique profonde et très personnelle. Il n'y a pas de réponse unique ; il peut être trouvé dans la recherche du bonheur, la contribution à la société, les relations humaines, l'exploration de la connaissance, ou la création artistique, selon chaque individu.; }
+            else if (command.includes(bonheur)) { response = Le strongbonheurstrong est souvent défini comme un état de bien-être et de satisfaction. Il est subjectif et peut être cultivé par la gratitude, la pleine conscience, des relations significatives, l'accomplissement personnel et l'aide aux autres.; }
+
+
+            addMessage(response, 'bot', true);  Use true for isHtml to allow strong tags etc.
+        }
+
+        sendBtn.addEventListener('click', () = {
+            const command = userInput.value.trim();
+            if (command) {
+                addMessage(command, 'user');
+                userInput.value = '';
+                processCommand(command);
+            }
+        });
+
+        userInput.addEventListener('keypress', (e) = {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+
+         Initial welcome message
+        document.addEventListener('DOMContentLoaded', () = {
+            setTimeout(() = {
+                addMessage(Bonjour ! Je suis Aura V12, votre assistante IA locale. Pour commencer, quel est votre prénom , 'bot');
+                sessionStorage.setItem('awaitingName', 'true');  Flag to indicate we are waiting for a name
+            }, 500);
+        });
+
+         --- Hangman Game Logic ---
+        const penduWords = [ordinateur, programmation, intelligence, algorithme, developpement, robotique, cybersécurité, interface, optimisation, virtuel, numerique, technologie, innovation, recherche, exploration, univers, astronomie, biologie, chimie, mathematiques, philosophie, histoire, litterature, geographie, economie, psychologie, sociologie, artificiel, logiciel, materiel, reseau, donnees, analyse, systeme, futur, creatitivite, information, communication, connaissance, apprentissage, quantique, neuroscience, biodiversite, ecosysteme, climat, energie, durable, ecologie, genetique, medecine, sante, bienetre, education, culture, decouverte, aventure, imagination, creativite];
+        let currentPenduWord = '';
+        let guessedPenduLetters = [];
+        let remainingPenduGuesses = 6;
+
+        function startPenduGame() {
+            currentPenduWord = penduWords[Math.floor(Math.random()  penduWords.length)].toUpperCase();
+            guessedPenduLetters = [];
+            remainingPenduGuesses = 6;
+            updatePenduDisplay();
+            penduInput.value = '';
+            penduInput.focus();
+            addMessage(Un nouveau mot a été choisi ! Devinez une lettre., 'bot');
+        }
+
+        function updatePenduDisplay() {
+            let displayWord = '';
+            for (const letter of currentPenduWord) {
+                displayWord += (guessedPenduLetters.includes(letter)  letter  '_') + ' ';
+            }
+            penduWordDisplay.textContent = displayWord.trim();
+            penduGuessesLeft.textContent = `Tentatives restantes  ${remainingPenduGuesses}`;
+            penduGuessedLetters.textContent = `Lettres déjà essayées  ${guessedPenduLetters.length  0  guessedPenduLetters.join(', ')  'Aucune'}`;
+        }
+
+        function checkPenduLetter() {
+            const guess = penduInput.value.toUpperCase();
+            penduInput.value = '';
+            penduInput.focus();
+
+            if (!guess.match([A-Z])  guess.length !== 1) {
+                addMessage(Veuillez entrer une seule lettre valide (A-Z)., 'bot');
+                return;
+            }
+            if (guessedPenduLetters.includes(guess)) {
+                addMessage(`Vous avez déjà essayé la lettre '${guess}'.`, 'bot');
+                return;
+            }
+
+            guessedPenduLetters.push(guess);
+            if (currentPenduWord.includes(guess)) {
+                addMessage(`Bravo ! La lettre '${guess}' est dans le mot.`, 'bot');
+            } else {
+                remainingPenduGuesses--;
+                addMessage(`Dommage, la lettre '${guess}' n'est pas dans le mot.`, 'bot');
+            }
+
+            updatePenduDisplay();
+            checkPenduWinLoss();
+        }
+
+        function checkPenduWinLoss() {
+            if (penduWordDisplay.textContent.replace( g, '') === currentPenduWord) {
+                addMessage(`Félicitations ! Vous avez trouvé le mot  strong${currentPenduWord}strong !`, 'bot', true);
+                hideAllModules();
+            } else if (remainingPenduGuesses = 0) {
+                addMessage(`Vous avez perdu ! Le mot était  strong${currentPenduWord}strong.`, 'bot', true);
+                hideAllModules();
+            }
+        }
+
+         --- Quiz Game Logic ---
+        const quizQuestions = [
+            { question Quelle est la capitale du Japon , options [Séoul, Tokyo, Pékin, Bangkok], answer Tokyo },
+            { question Quel est le plus grand océan du monde , options [Océan Atlantique, Océan Indien, Océan Arctique, Océan Pacifique], answer Océan Pacifique },
+            { question Qui a peint la Joconde , options [Vincent van Gogh, Pablo Picasso, Léonard de Vinci, Claude Monet], answer Léonard de Vinci },
+            { question Quelle est la formule chimique de l'eau , options [CO2, O2, H2O, NaCl], answer H2O },
+            { question Quel pays est connu sous le nom de 'Pays du Soleil-Levant' , options [Chine, Corée du Sud, Japon, Vietnam], answer Japon },
+            { question Quel est l'animal terrestre le plus rapide , options [Lion, Guépard, Gazelle, Cheval], answer Guépard },
+            { question Combien de continents y a-t-il sur Terre , options [5, 6, 7, 8], answer 7 },
+            { question Quel est le plus grand désert du monde , options [Désert du Sahara, Désert de Gobi, Désert d'Arabie, Désert de l'Antarctique], answer Désert de l'Antarctique },
+            { question Quel est le principal composant de l'air que nous respirons , options [Oxygène, Dioxyde de carbone, Azote, Hydrogène], answer Azote },
+            { question Quel instrument de musique a été inventé par Adolphe Sax , options [Trompette, Clarinette, Saxophone, Flûte], answer Saxophone },
+            { question Quel est le plus grand mammifère terrestre , options [Éléphant d'Afrique, Girafe, Rhinocéros blanc, Hippopotame], answer Éléphant d'Afrique },
+            { question Quel est le symbole chimique de l'or , options [Ag, Au, Fe, Cu], answer Au },
+            { question Dans quel pays se trouve la tour de Pise , options [France, Espagne, Italie, Allemagne], answer Italie },
+            { question Qui a écrit 'Roméo et Juliette' , options [Charles Dickens, William Shakespeare, Jane Austen, Victor Hugo], answer William Shakespeare },
+            { question Combien de côtés a un hexagone , options [4, 5, 6, 7], answer 6 },
+            { question Quelle est la plus grande planète de notre système solaire , options [Mars, Saturne, Jupiter, Neptune], answer Jupiter },
+            { question Quel est le nom du célèbre détective créé par Arthur Conan Doyle , options [Hercule Poirot, Sherlock Holmes, Miss Marple, Arsène Lupin], answer Sherlock Holmes },
+            { question Quelle est la monnaie du Royaume-Uni , options [Euro, Dollar, Livre Sterling, Yen], answer Livre Sterling },
+            { question Quel est le sport national du Japon , options [Judo, Karaté, Sumo, Kendo], answer Sumo },
+            { question Quel fleuve traverse Paris , options [Loire, Rhône, Garonne, Seine], answer Seine }
+        ];
+
+        let currentQuizQuestionIndex = 0;
+        let quizScore = 0;
+        let quizTotalQuestions = 0;
+
+        function startQuiz() {
+            currentQuizQuestionIndex = 0;
+            quizScore = 0;
+            quizTotalQuestions = 0;
+            shuffleArray(quizQuestions);  Shuffle questions for variety
+            displayQuizQuestion();
+            quizScoreElem.textContent = `Score  ${quizScore}  ${quizTotalQuestions}`;
+            quizResultElem.textContent = ;
+            nextQuizBtn.style.display = 'none';
+        }
+
+        function displayQuizQuestion() {
+            if (currentQuizQuestionIndex  quizQuestions.length) {
+                const q = quizQuestions[currentQuizQuestionIndex];
+                quizQuestionElem.textContent = q.question;
+                quizOptionsElem.innerHTML = '';
+                quizTotalQuestions++;
+
+                q.options.forEach(option = {
+                    const li = document.createElement('li');
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.onclick = () = selectQuizAnswer(option, q.answer);
+                    li.appendChild(button);
+                    quizOptionsElem.appendChild(li);
+                });
+                quizScoreElem.textContent = `Score  ${quizScore}  ${currentQuizQuestionIndex}`;
+                nextQuizBtn.style.display = 'none';
+            } else {
+                endQuiz();
+            }
+        }
+
+        function selectQuizAnswer(selected, correct) {
+            Array.from(quizOptionsElem.children).forEach(li = {
+                const button = li.querySelector('button');
+                button.disabled = true;
+                if (button.textContent === correct) {
+                    button.style.backgroundColor = '#28a745';
+                } else if (button.textContent === selected) {
+                    button.style.backgroundColor = '#dc3545';
+                }
+            });
+
+            if (selected === correct) {
+                quizScore++;
+                quizResultElem.textContent = Correct !;
+                quizResultElem.style.color = '#28a745';
+            } else {
+                quizResultElem.textContent = `Faux. La bonne réponse était  ${correct}.`;
+                quizResultElem.style.color = '#dc3545';
+            }
+            quizScoreElem.textContent = `Score  ${quizScore}  ${currentQuizQuestionIndex}`;
+            nextQuizBtn.style.display = 'inline-block';
+        }
+
+        function nextQuizQuestion() {
+            currentQuizQuestionIndex++;
+            quizResultElem.textContent = ;
+            displayQuizQuestion();
+        }
+
+        function endQuiz() {
+            addMessage(`Le Quiz est terminé ! Votre score final est de strong${quizScore} sur ${quizQuestions.length}strong.`, 'bot', true);
+            quizQuestionElem.textContent = Quiz terminé !;
+            quizOptionsElem.innerHTML = '';
+            quizResultElem.textContent = ;
+            nextQuizBtn.style.display = 'none';
+            hideAllModules();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i  0; i--) {
+                const j = Math.floor(Math.random()  (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+         --- Dream Analyzer Logic ---
+        const dreamSymbols = {
+            eau L'eau peut symboliser les émotions, l'inconscient, la purification ou le renouveau. Son état (calme, agitée, claire, trouble) est important.,
+            voler Voler dans un rêve représente souvent la liberté, l'évasion, le dépassement des obstacles ou un sentiment de puissance.,
+            forêt Une forêt peut symboliser l'inconnu, l'exploration de votre inconscient, la croissance personnelle ou parfois un sentiment d'égarement.,
+            maison La maison représente souvent le moi intérieur, votre personnalité. Chaque pièce peut symboliser un aspect différent de votre vie.,
+            serpent Le serpent est un symbole complexe  il peut évoquer la transformation, la guérison, la sagesse, mais aussi la peur, la tentation ou la trahison.,
+            poursuite Être poursuivi dans un rêve peut indiquer que vous fuyez une situation, une peur ou un aspect de vous-même que vous refusez d'affronter.,
+            chute Tomber dans un rêve peut symboliser une perte de contrôle, de l'insécurité, un sentiment d'échec ou un besoin de lâcher prise.,
+            mort La mort dans un rêve symbolise rarement la mort physique, mais plutôt une fin, une transformation profonde, un renouveau ou le lâcher-prise d'une ancienne partie de soi.,
+            bébé Un bébé représente le nouveau départ, le potentiel, la vulnérabilité ou un nouveau projet qui prend forme dans votre vie.,
+            argent L'argent dans un rêve peut symboliser la valeur personnelle, les opportunités, la réussite ou le pouvoir. La manière dont il est gagné ou perdu est significative.,
+            feu Le feu peut symboliser la passion, la destruction, la purification, l'énergie ou la transformation. Son contrôle ou son déchaînement est important.,
+            arbre L'arbre représente la croissance, la sagesse, la force, les racines (famille, passé) et le développement personnel.,
+            route Une route symbolise votre chemin de vie, les choix que vous faites, ou la direction que prend votre vie. Son état (droite, sinueuse, bloquée) donne des indices.,
+            chat Le chat peut symboliser l'indépendance, la féminité, l'intuition, la liberté ou la malice.,
+            chien Le chien symbolise souvent la loyauté, l'amitié, la protection ou les instincts primaires.,
+            oiseau Les oiseaux peuvent symboliser la liberté, les aspirations, les messages ou l'élévation spirituelle.,
+            montagne La montagne représente les défis, les objectifs à atteindre, les obstacles ou la quête de l'élévation.,
+            pont Un pont symbolise une transition, un passage d'une phase à une autre, une connexion ou la résolution d'un conflit.,
+            lumière La lumière est souvent associée à la clarté, la connaissance, l'espoir, la révélation ou la guérison.,
+            obscurité L'obscurité peut symboliser l'inconnu, la peur, l'incertitude, le besoin d'introspection ou des aspects cachés de soi-même.
+        };
+
+        function analyzeDream() {
+            const dreamText = dreamTextInput.value.toLowerCase();
+            let analysis = Je n'ai pas trouvé de symboles clés dans votre rêve. Les rêves sont très personnels, et ma base de données est limitée. Continuez à explorer ce qu'il peut signifier pour vous !;
+            let foundSymbols = [];
+
+            for (const symbol in dreamSymbols) {
+                if (dreamText.includes(symbol)) {
+                    foundSymbols.push(`strong${symbol.charAt(0).toUpperCase() + symbol.slice(1)}strong ${dreamSymbols[symbol]}`);
+                }
+            }
+
+            if (foundSymbols.length  0) {
+                analysis = Voici quelques interprétations symboliques basées sur votre rêve nn + foundSymbols.join('nn');
+            }
+            dreamResultElem.innerHTML = analysis;
+            addMessage(Votre rêve a été analysé (basé sur mes connaissances limitées)., 'bot');
+        }
+
+         --- Joke Module Logic ---
+        const jokes = [
+            Qu'est-ce qui est jaune et qui attend  Jonathan.,
+            Que dit une mère à son enfant pour qu'il range sa chambre  Va ranger ta chambre, sinon je vais ranger tes dents !,
+            Quel est le sport préféré des électriciens  La course de relais.,
+            Pourquoi les plongeurs plongent-ils toujours en arrière  Parce que s'ils plongeaient en avant, ils tomberaient dans le bateau !,
+            C'est l'histoire d'un schtroumpf qui tombe, et qui se fait un bleu.,
+            Que dit un informaticien quand il s'ennuie  Il se f1 !,
+            Qu'est-ce qui est petit, vert et qui monte et descend  Un petit pois dans un ascenseur.,
+            Deux grains de sable arrivent dans le désert. L'un dit à l'autre  'Je crois qu'on est ensablés !',
+            Pourquoi les pêcheurs sont-ils toujours pressés  Parce qu'ils courent après le temps (le poisson) !,
+            Quel est le comble pour un électricien  De ne pas être au courant.,
+            C'est quoi un fantôme qui a le hoquet  Un fantôme à ressorts !,
+            Pourquoi les oiseaux ne vont jamais au paradis  Parce qu'ils ont déjà des ailes !,
+            Quel est le comble pour un jardinier  De raconter des salades !,
+            Que fait un vampire avec un tracteur  Il sème la terreur !
+        ];
+
+        function tellJoke() {
+            const randomJoke = jokes[Math.floor(Math.random()  jokes.length)];
+            jokeDisplay.textContent = randomJoke;
+            addMessage(Prêt(e) pour une blague , 'bot');
+        }
+
+         --- Fact Module Logic ---
+        const facts = [
+            Les koalas dorment environ 20 heures par jour.,
+            Le cœur d'une crevette est dans sa tête.,
+            Les escargots ont quatre nez.,
+            Le miel est le seul aliment qui ne se gâte pas.,
+            Les fourmis peuvent soulever 50 fois leur propre poids.,
+            Une personne moyenne passe environ 6 mois de sa vie à attendre au feu rouge.,
+            Le son voyage 4 fois plus vite dans l'eau que dans l'air.,
+            Les flocons de neige sont tous uniques.,
+            La langue des caméléons est deux fois plus longue que leur corps.,
+            Le savais-tu  La Tour Eiffel peut grandir de 15 cm par temps chaud.,
+            Un nuage d'orage moyen pèse l'équivalent de 80 éléphants.,
+            Les astronautes ne peuvent pas pleurer dans l'espace, car les larmes ne tombent pas.
+        ];
+
+        function tellFact() {
+            const randomFact = facts[Math.floor(Math.random()  facts.length)];
+            factDisplay.textContent = randomFact;
+            addMessage(Intéressons-nous à un fait surprenant !, 'bot');
+        }
+
+         --- Simulated Global Weather ---
+        const weatherData = {
+            paris { temp 22°C, condition Ensoleillé, wind 10 kmh, humidity 60% },
+            lille { temp 18°C, condition Partiellement nuageux, wind 15 kmh, humidity 75% },
+            marseille { temp 28°C, condition Très ensoleillé, wind 5 kmh, humidity 50% },
+            lyon { temp 20°C, condition Pluies éparses, wind 8 kmh, humidity 80% },
+            bordeaux { temp 24°C, condition Ciel clair, wind 12 kmh, humidity 65% },
+            nice { temp 26°C, condition Ensoleillé avec brise marine, wind 20 kmh, humidity 55% },
+            strasbourg { temp 19°C, condition Couvert, wind 7 kmh, humidity 70% },
+            tokyo { temp 25°C, condition Averses et humidité, wind 18 kmh, humidity 85% },
+            new york { temp 21°C, condition Brume matinale, puis soleil, wind 10 kmh, humidity 70% },
+            london { temp 16°C, condition Nuageux avec risque de crachin, wind 22 kmh, humidity 90% },
+            berlin { temp 20°C, condition Quelques éclaircies, wind 9 kmh, humidity 68% },
+            rome { temp 30°C, condition Chaud et ensoleillé, wind 5 kmh, humidity 45% },
+            madrid { temp 32°C, condition Très chaud et sec, wind 7 kmh, humidity 30% },
+            sydney { temp 17°C, condition Frais et venteux, wind 25 kmh, humidity 60% },
+            dubai { temp 40°C, condition Très chaud et dégagé, wind 15 kmh, humidity 20% }
+        };
+
+        function getWeatherForecast(city) {
+            if (!city) {
+                return Pour quelle ville souhaitez-vous la météo  (Ex 'météo à Paris');
+            }
+            city = city.toLowerCase().replace(saint g, 'st ').trim();  Normalize city names a bit
+
+            if (weatherData[city]) {
+                const data = weatherData[city];
+                return `La météo à strong${city.charAt(0).toUpperCase() + city.slice(1)}strong  ${data.condition}, ${data.temp}. Vent  ${data.wind}, Humidité  ${data.humidity}.`;
+            } else {
+                return `Désolée, je n'ai pas de données météo pour strong${city.charAt(0).toUpperCase() + city.slice(1)}strong dans ma base locale. J'ai des informations pour  Paris, Lille, Marseille, Lyon, Bordeaux, Nice, Strasbourg, Tokyo, New York, London, Berlin, Rome, Madrid, Sydney, Dubai.`;
+            }
+        }
+
+         --- Pierre, Papier, Ciseaux Game ---
+        function playRPS(playerChoice) {
+            const choices = ['pierre', 'papier', 'ciseaux'];
+            const computerChoice = choices[Math.floor(Math.random()  choices.length)];
+            let result = '';
+
+            if (playerChoice === computerChoice) {
+                result = `Égalité ! Vous avez choisi ${playerChoice} et l'ordinateur a choisi ${computerChoice}.`;
+            } else if (
+                (playerChoice === 'pierre' && computerChoice === 'ciseaux') 
+                (playerChoice === 'papier' && computerChoice === 'pierre') 
+                (playerChoice === 'ciseaux' && computerChoice === 'papier')
+            ) {
+                result = `Vous avez gagné ! Vous avez choisi ${playerChoice} et l'ordinateur a choisi ${computerChoice}.`;
+            } else {
+                result = `Vous avez perdu ! Vous avez choisi ${playerChoice} et l'ordinateur a choisi ${computerChoice}.`;
+            }
+            rpsResult.textContent = result;
+            addMessage(`Vous avez joué ${playerChoice}.`, 'user');
+            addMessage(result, 'bot');
+        }
+
+         --- Number Guessing Game ---
+        let targetNumber = 0;
+        let attempts = 0;
+
+        function startNumberGuessingGame() {
+            targetNumber = Math.floor(Math.random()  100) + 1;
+            attempts = 0;
+            numberGuessResult.textContent = '';
+            numberGuessAttempts.textContent = '';
+            numberGuessInput.value = '';
+            numberGuessInput.focus();
+            addMessage(J'ai pensé à un nouveau nombre. À vous de deviner !, 'bot');
+        }
+
+        function checkNumberGuess() {
+            const guess = parseInt(numberGuessInput.value);
+            if (isNaN(guess)  guess  1  guess  100) {
+                numberGuessResult.textContent = Veuillez entrer un nombre valide entre 1 et 100.;
+                numberGuessResult.style.color = 'orange';
+                return;
+            }
+
+            attempts++;
+            numberGuessAttempts.textContent = `Tentatives  ${attempts}`;
+
+            if (guess === targetNumber) {
+                numberGuessResult.textContent = `Bravo ! Vous avez trouvé le nombre ${targetNumber} en ${attempts} tentatives !`;
+                numberGuessResult.style.color = '#28a745';
+                addMessage(`Vous avez trouvé le nombre ${targetNumber} en ${attempts} tentatives !`, 'bot');
+                hideAllModules();
+            } else if (guess  targetNumber) {
+                numberGuessResult.textContent = C'est plus !;
+                numberGuessResult.style.color = '#FFC107';
+            } else {
+                numberGuessResult.textContent = C'est moins !;
+                numberGuessResult.style.color = '#FFC107';
+            }
+            numberGuessInput.value = '';
+            numberGuessInput.focus();
+        }
+
+         --- Random Story Generator ---
+        const storyStarters = [
+            Dans une ville où les bâtiments flottaient dans les airs,,
+            Au fond d'une forêt enchantée, vivait un vieil ermite qui détenait un secret...,
+            Le voyageur ouvrit un livre ancien et se retrouva transporté dans un monde où...,
+            Un robot nettoyeur découvrit un jour une faille dans le système, et tout changea...,
+            Sous la surface de l'océan, une civilisation oubliée se préparait à...
+        ];
+        const storyMidsections = [
+            Soudain, une créature mystérieuse apparut, défiant toutes les lois connues.,
+            Un message codé fut découvert, révélant une prophétie oubliée depuis des siècles.,
+            Le héros se lança dans une quête périlleuse, bravant des tempêtes et des trahisons.,
+            Une décision difficile dut être prise, dont dépendait le destin de tout un peuple.,
+            Le temps sembla s'arrêter, laissant place à une révélation inattendue.
+        ];
+        const storyEndings = [
+            Finalement, l'équilibre fut rétabli, mais les choses ne seraient plus jamais les mêmes.,
+            Le secret fut révélé, et le monde entier en fut bouleversé à jamais.,
+            Avec courage et sagesse, l'aventure prit fin, mais la légende perdurerait.,
+            Les conséquences de leurs actes se manifestèrent, changeant leur réalité pour toujours.,
+            Ils comprirent que le véritable trésor n'était pas l'objet, mais le voyage lui-même.
+        ];
+
+        function generateStory() {
+            const starter = storyStarters[Math.floor(Math.random()  storyStarters.length)];
+            const mid = storyMidsections[Math.floor(Math.random()  storyMidsections.length)];
+            const end = storyEndings[Math.floor(Math.random()  storyEndings.length)];
+            storyDisplay.textContent = `${starter} ${mid} ${end}`;
+            addMessage(Voici votre histoire aléatoire !, 'bot');
+        }
+
+          --- Fun Fact Module Logic ---
+         const funFacts = [
+            Le cri du paon s'entend à plus de 8 kilomètres.,
+            Les vaches ont un meilleur ami et deviennent stressées si elles sont séparées.,
+            Les pieuvres ont trois cœurs.,
+            Un être humain a en moyenne 100 000 cheveux.,
+            Les abeilles peuvent reconnaître les visages humains.,
+            Il y a plus de six milliards de blattes sur Terre (ouf, on en voit peu !).,
+            Les étoiles de mer n'ont pas de cerveau.,
+            Le chat est le seul animal domestique qui ne figure pas dans la Bible.
+        ];
+
+        function tellFunFact() {
+            const randomFact = funFacts[Math.floor(Math.random()  funFacts.length)];
+            funFactDisplay.textContent = randomFact;
+            addMessage(Voici une anecdote amusante !, 'bot');
+        }
+
+    script
+body
+html
